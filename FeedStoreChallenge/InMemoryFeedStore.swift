@@ -18,24 +18,20 @@ public class InMemoryFeedStore: FeedStore {
         
     }
     
-    private var localStore: [Cache] = []
+    private var localStore: Cache?
     
     public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-        localStore = []
+        localStore = nil
         completion(.none)
     }
     
     public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-        if localStore.isEmpty {
-            localStore.append(Cache(feedItems: feed, timestamp: timestamp))
-        } else {
-            localStore[0] = Cache(feedItems: feed, timestamp: timestamp)
-        }
+        localStore = Cache(feedItems: feed, timestamp: timestamp)
         completion(nil)
     }
     
     public func retrieve(completion: @escaping RetrievalCompletion) {
-        if let cache = localStore.first {
+        if let cache = localStore {
             completion(.found(feed: cache.feedItems, timestamp: cache.timestamp))
         } else {
             completion(.empty)
